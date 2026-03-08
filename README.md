@@ -7,6 +7,9 @@
 A Windows CLI tool that watches a local folder and uploads every file inside it to Google Drive using **resumable uploads**. If your connection drops mid-upload, Anchor picks up from exactly where it left off (or maybe not, just 8mb usage wasted 😛).
 
 ---
+<p align="center">
+  <img src="image.png" alt="Anchor Logo" width="200"/>
+</p>
 
 ## The Problem Anchor Solves
 
@@ -343,10 +346,6 @@ AddFolderCommand.run()
          ▼
   ManifestStore.markDone()
 ```
-
----
-
-## What Is Complete vs. What Is Pending
 
 ---
 
