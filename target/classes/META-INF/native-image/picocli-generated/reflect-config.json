@@ -1,0 +1,12 @@
+[
+  {
+    "name" : "com.ayush.Anchor.cli.AddFolderCommand",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "fields" : [
+      { "name" : "folderPath" }
+    ]
+  }
+]
