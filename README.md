@@ -1,6 +1,6 @@
-<p align="center">
+<!-- <p align="center">
   <img src="logo.png" alt="Anchor Logo" width="200"/>
-</p>
+</p> -->
 
 <h1 align="center">Anchor -- Windows Upload Stabilizer</h1>
 
