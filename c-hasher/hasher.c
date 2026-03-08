@@ -247,8 +247,15 @@ int main(int argc, char *argv[]) {
     hex[64] = '\0';
 
     /* Print result as one JSON line to stdout.
-     * Java's CHasher.java reads this exact format with Jackson. */
-    printf("{\"file\": \"%s\", \"sha256\": \"%s\", \"size_bytes\": %ld}\n",
-           path, hex, size_bytes);
+     * Windows paths contain backslashes which must be doubled in JSON strings
+     * (e.g. C:\Users → C:\\Users), otherwise Jackson throws JsonParseException.
+     * We print the path character-by-character, escaping \ as \\. */
+    printf("{\"file\": \"");
+    for (const char *c = path; *c; c++) {
+        if (*c == '\\') printf("\\\\");
+        else if (*c == '"') printf("\\\"");
+        else putchar(*c);
+    }
+    printf("\", \"sha256\": \"%s\", \"size_bytes\": %ld}\n", hex, size_bytes);
     return 0;
 }

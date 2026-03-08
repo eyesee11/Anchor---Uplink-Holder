@@ -14,6 +14,9 @@ import com.ayush.Anchor.hasher.CHasher;
 import com.ayush.Anchor.hasher.HashResult;
 import com.ayush.Anchor.manifest.FileRecord;
 import com.ayush.Anchor.manifest.ManifestStore;
+import com.ayush.Anchor.upload.DriveAuthHelper;
+import com.ayush.Anchor.upload.ResumableUploader;
+import com.ayush.Anchor.upload.UploadWorker;
 import com.ayush.Anchor.watcher.FolderWatcher;
 
 import picocli.CommandLine.Command;
@@ -60,6 +63,31 @@ public class AddFolderCommand implements Runnable {
         }
 
         try (ManifestStore manifest = new ManifestStore()) {
+            // ── Build Drive service + uploader ────────────────────────────────────
+            // DriveAuthHelper.buildDriveService() opens a browser on first run for
+            // OAuth consent, then silently refreshes tokens on subsequent runs.
+            com.google.api.services.drive.Drive drive;
+            try {
+                drive = DriveAuthHelper.buildDriveService();
+            } catch (Exception e) {
+                log.error("Google Drive auth failed. Did you place credentials.json at ~/.anchor/credentials.json?", e);
+                System.err.println("ERROR: Could not authenticate with Google Drive.");
+                System.err.println("  Place your credentials.json at: " +
+                    System.getProperty("user.home") + "/.anchor/credentials.json");
+                return;
+            }
+
+            ResumableUploader uploader = new ResumableUploader(drive, manifest);
+
+            // ── Upload worker: picks PENDING files from the queue and uploads ────
+            // recoverPending() re-queues any files left in PENDING/UPLOADING state
+            // from a previous run — this is how we resume after a crash.
+            UploadWorker uploadWorker = new UploadWorker(manifest, uploader);
+            uploadWorker.recoverPending();
+            Thread uploadThread = new Thread(uploadWorker, "upload-worker");
+            uploadThread.setDaemon(true);
+            uploadThread.start();
+
             // Hash + register all existing files in the folder
             CHasher hasher = new CHasher(findHasherBinary());
             Files.list(path)
@@ -76,11 +104,14 @@ public class AddFolderCommand implements Runnable {
                 });
 
             // Start watching for new files
+            // The watcher enqueues new files into UploadWorker's queue
             FolderWatcher watcher = new FolderWatcher(path, newFile -> {
                 try {
                     HashResult hr = hasher.hash(newFile);
-                    manifest.insertFile(new FileRecord(
-                        hr.file, hr.sizeBytes, hr.sha256, FileRecord.Status.PENDING));
+                    FileRecord record = new FileRecord(
+                        hr.file, hr.sizeBytes, hr.sha256, FileRecord.Status.PENDING);
+                    manifest.insertFile(record);
+                    uploadWorker.enqueue(record);   // hand off to the upload thread
                 } catch (IOException | InterruptedException | SQLException e) {
                     log.error("Watcher error: {}", e);
                 }

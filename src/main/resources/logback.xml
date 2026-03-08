@@ -1,0 +1,132 @@
+<!--
+  logback.xml — controls ALL logging for the Anchor application.
+  Loaded automatically by Logback at startup (it's on the classpath via src/main/resources/).
+
+  ─────────────────────────────────────────────────────────────────────────────
+  WHY do we need this file?
+  ─────────────────────────────────────────────────────────────────────────────
+  Without logback.xml, Logback uses a hardcoded default: it prints every log
+  message to the console with a basic format and no timestamps. This config:
+    1. Adds timestamps so you know when each event happened
+    2. Keeps INFO+ on the console (quiet for normal use)
+    3. Writes ALL levels (DEBUG+) to a rolling log file for debugging
+    4. Automatically rotates the log file daily and caps history at 30 days
+
+  ─────────────────────────────────────────────────────────────────────────────
+  How SLF4J + Logback work together
+  ─────────────────────────────────────────────────────────────────────────────
+  SLF4J is the logging API  (what your code calls: log.info("..."))
+  Logback is the engine      (what actually writes the text to files/console)
+
+  At runtime, SLF4J looks for an implementation on the classpath.
+  It finds Logback (from pom.xml) and hands off all log calls to it.
+  Logback reads this file to know WHERE and HOW to write them.
+
+  The separation means you could swap Logback for Log4j2 later by:
+    1. Changing two lines in pom.xml
+    2. Replacing this file
+  …without touching a single line of application code.
+-->
+<configuration>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    PROPERTIES — reusable variables for paths and patterns
+    ═══════════════════════════════════════════════════════════════════════════
+    ${user.home} is a Java system property — resolves to C:\Users\Ayush on Windows.
+    Centralising the log directory here means you only change it in one place.
+    -->
+    <property name="LOG_DIR"     value="${user.home}/.anchor" />
+    <property name="LOG_FILE"    value="${LOG_DIR}/anchor.log" />
+
+    <!--
+    The pattern controls what each log line looks like.
+    %d{...}  = timestamp in the given format
+    %-5level = log level, left-padded to 5 chars so columns align (INFO , WARN )
+    %logger{36} = logger class name, truncated to 36 chars (avoids long package paths)
+    %msg     = the actual message
+    %n       = platform newline (\r\n on Windows, \n on Linux)
+    -->
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n" />
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    APPENDER 1 — CONSOLE
+    ═══════════════════════════════════════════════════════════════════════════
+    An "appender" is a destination for log output.
+    ConsoleAppender writes to System.out (captured by the terminal).
+
+    WHY only INFO and above on the console?
+    DEBUG messages (e.g., "Queued file X", "Chunk 3/10 sent") would drown
+    out the important status messages for a normal user. DEBUG is for developers.
+    The log FILE (below) captures DEBUG so nothing is lost.
+    -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <!-- ThresholdFilter: only pass messages at INFO level or higher -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    APPENDER 2 — ROLLING FILE
+    ═══════════════════════════════════════════════════════════════════════════
+    RollingFileAppender writes to a file, rolling it over on a schedule.
+
+    WHY rolling?
+    A single log file for a long-running daemon would grow forever.
+    Rolling by day creates "anchor.2026-03-08.log", "anchor.2026-03-09.log", etc.
+    maxHistory=30 deletes logs older than 30 days automatically.
+    totalSizeCap=100MB caps total disk usage across all rotated files.
+
+    This file captures DEBUG+ so every enqueue, chunk progress, and SQL call
+    is recorded — invaluable for diagnosing upload failures after the fact.
+    -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+
+        <!-- TimeBasedRollingPolicy: roll over at midnight each day -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- %d in the filename = the date of the rolled-over log -->
+            <fileNamePattern>${LOG_DIR}/anchor.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    ROOT LOGGER
+    ═══════════════════════════════════════════════════════════════════════════
+    The root logger catches ALL log calls (from our code AND from libraries).
+    level="DEBUG" means: accept everything DEBUG and above.
+    Each appender then applies its own filter on top of this.
+
+    Result:
+      Console → shows INFO, WARN, ERROR   (user-facing messages)
+      File    → shows DEBUG, INFO, WARN, ERROR  (full detail for debugging)
+
+    To silence noisy library logs (e.g., Google HTTP client), add a specific
+    <logger> entry below the root logger:
+      <logger name="com.google.api.client" level="WARN" />
+    -->
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE"    />
+    </root>
+
+    <!-- Silence Google HTTP client's verbose request/response logging at INFO -->
+    <logger name="com.google.api.client.http" level="WARN" />
+    <!-- Silence Google Auth library internal logs -->
+    <logger name="com.google.auth"            level="WARN" />
+
+</configuration>
