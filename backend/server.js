@@ -3,8 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const { google } = require("googleapis");
 const path = require("path");
-const CLIENT_ID = process.env.CLIENT_ID; 
-const CLIENT_SECRET = process.env.CLIENT_SECRET; 
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI =
   process.env.REDIRECT_URI || "http://localhost:3000/auth/callback";
 const PORT = process.env.PORT || 3000;
@@ -14,7 +14,7 @@ const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 const app = express();
 
 app.use(cors());
-app.use(express.static(path.join(__dirname, "../website")));
+app.use(express.static(path.join(__dirname, "../files")));
 
 function getOAuthClient() {
   return new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
@@ -60,14 +60,14 @@ app.get("/auth/callback", async (req, res) => {
   }
 });
 app.get("/download/jar", (req, res) => {
-  const file = path.join(__dirname, "../website/Anchor-1.0-SNAPSHOT.jar");
+  const file = path.join(__dirname, "../files/Anchor-1.0-SNAPSHOT.jar");
   res.download(file, "Anchor-1.0-SNAPSHOT.jar", (err) => {
     if (err) res.status(404).send("JAR not found. Run mvn package first.");
   });
 });
 
 app.get("/download/hasher", (req, res) => {
-  const file = path.join(__dirname, "../website/hasher.exe");
+  const file = path.join(__dirname, "../files/hasher.exe");
   res.download(file, "hasher.exe", (err) => {
     if (err) res.status(404).send("hasher.exe not found.");
   });
