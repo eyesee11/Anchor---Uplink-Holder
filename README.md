@@ -1,5 +1,9 @@
 # [![Anchor Logo](logo.png)](logo.png)
 
+<div style="text-align: center;">
+  <img src="logo.png" alt="Logo" width="300" />
+</div>   
+
 # ⚓ Anchor — Windows Upload Stabilizer
 
 A Windows CLI tool that watches a local folder and uploads every file inside it to Google Drive using **resumable uploads**. If your connection drops mid-upload, Anchor picks up from exactly where it left off — never wasting bandwidth restarting from byte 0.
