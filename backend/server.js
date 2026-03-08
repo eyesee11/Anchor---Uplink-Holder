@@ -14,7 +14,7 @@ const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 const app = express();
 
 app.use(cors());
-app.use(express.static(path.join(__dirname, "../files")));
+// Static files served from GitHub Pages — not needed on Vercel
 
 function getOAuthClient() {
   return new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
