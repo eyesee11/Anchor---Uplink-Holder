@@ -1,5 +1,4 @@
-# [![Anchor Logo](logo.png)](logo.png)
-
+#
 <div style="text-align: center;">
   <img src="logo.png" alt="Logo" width="300" />
 </div>   
