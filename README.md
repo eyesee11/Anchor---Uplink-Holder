@@ -4,7 +4,7 @@
 
 <h1 align="center">Anchor -- Windows Upload Stabilizer</h1>
 
-A Windows CLI tool that watches a local folder and uploads every file inside it to Google Drive using **resumable uploads**. If your connection drops mid-upload, Anchor picks up from exactly where it left off — never wasting bandwidth restarting from byte 0.
+A Windows CLI tool that watches a local folder and uploads every file inside it to Google Drive using **resumable uploads**. If your connection drops mid-upload, Anchor picks up from exactly where it left off (or maybe not, just 8mb usage wasted 😛).
 
 ---
 
