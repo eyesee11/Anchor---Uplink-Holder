@@ -155,13 +155,17 @@ function errorPage(message) {
 </html>`;
 }
 
-app.listen(PORT, () => {
-  console.log(`> Anchor backend running on http://localhost:${PORT}`);
-  console.log(`> Website:    http://localhost:${PORT}/`);
-  console.log(`> Auth login: http://localhost:${PORT}/auth/login`);
-  if (!CLIENT_ID || !CLIENT_SECRET) {
-    console.warn(
-      "WARNING: CLIENT_ID or CLIENT_SECRET is not set in .env — auth will fail.",
-    );
-  }
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`> Anchor backend running on http://localhost:${PORT}`);
+    console.log(`> Website:    http://localhost:${PORT}/`);
+    console.log(`> Auth login: http://localhost:${PORT}/auth/login`);
+    if (!CLIENT_ID || !CLIENT_SECRET) {
+      console.warn(
+        "WARNING: CLIENT_ID or CLIENT_SECRET is not set in .env — auth will fail.",
+      );
+    }
+  });
+}
+
+module.exports = app;
