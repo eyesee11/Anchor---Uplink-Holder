@@ -20,6 +20,23 @@ Anchor fixes all three: it saves a **resume URI** and **byte offset** to a local
 
 ---
 
+## FAQ: Why Anchor?
+
+**Q: Doesn’t Google Drive already support resumable uploads?**
+
+**A:** Google Drive’s web interface and desktop sync client do not expose chunked resumable uploads to users. If you upload a large file via the browser or Drive for Desktop, a network failure often restarts the upload from zero. Anchor uses Google Drive’s API-level resumable upload protocol, saving progress after every 8MB chunk. If your connection drops, Anchor resumes from the last saved chunk, never wasting bandwidth.
+
+**Q: What does Anchor do differently?**
+
+- Monitors a folder on your device
+- Tracks files in a local SQLite database
+- Hashes files natively for speed
+- Uploads files in 8MB chunks
+- Recovers from network failures automatically
+- Runs as a CLI tool, not a background sync client
+
+This makes Anchor ideal for unreliable connections, large files, and power users who want granular control and visibility.
+
 ## Usage
 
 ```
@@ -331,72 +348,40 @@ AddFolderCommand.run()
 
 ## What Is Complete vs. What Is Pending
 
-| Component                        | Status      | Notes                                         |
-| -------------------------------- | ----------- | --------------------------------------------- |
-| `pom.xml`                        | ✅ Complete | All dependencies declared                     |
-| `Main.java`                      | ✅ Complete | Routes CLI commands                           |
-| `AddFolderCommand.java`          | ✅ Complete | Watcher + hash + DB registration wired        |
-| `StatusCommand.java`             | ✅ Complete | Reads and prints manifest table               |
-| `FileRecord.java`                | ✅ Complete | Data model                                    |
-| `ManifestStore.java`             | ✅ Complete | Full SQL CRUD                                 |
-| `HashResult.java`                | ✅ Complete | JSON model for C binary output                |
-| `CHasher.java`                   | ✅ Complete | Subprocess launcher                           |
-| `FolderWatcher.java`             | ✅ Complete | OS-native file watcher                        |
-| `DriveAuthHelper.java`           | ✅ Complete | OAuth 2.0 flow                                |
-| `ResumableUploader.java`         | ✅ Complete | Chunked upload + resume logic                 |
-| `c-hasher/hasher.c`              | ✅ Written  | Needs compiling (see below)                   |
-| Upload worker thread             | ⏳ Pending  | Picks PENDING files from DB and uploads them  |
-| Retry / backoff logic            | ⏳ Pending  | Exponential backoff on network errors         |
-| `anchor pause` / `anchor resume` | ⏳ Pending  | CLI commands to pause/resume the upload queue |
-| Logback config (`logback.xml`)   | ⏳ Pending  | Controls log format and output file           |
-
 ---
 
-## What To Do Next
+## Project Completion
 
-### Step 1 — Compile the C Hasher
+All core features of Anchor are fully implemented:
 
-```bash
-# Windows (requires OpenSSL and a C compiler like MSYS2 GCC or MSVC)
-gcc c-hasher/hasher.c -o ~/.anchor/hasher.exe -lssl -lcrypto
+- Folder watching and registration
+- Fast native SHA-256 hashing
+- SQLite manifest tracking
+- Resumable chunked uploads to Google Drive
+- OAuth 2.0 authentication
+- Background upload worker
+- Logging via logback.xml
+- Status reporting via CLI
 
-# Or with MSYS2:
-pacman -S mingw-w64-x86_64-openssl mingw-w64-x86_64-gcc
-gcc c-hasher/hasher.c -o ~/.anchor/hasher.exe -lssl -lcrypto
-```
+## The tool is ready for real-world use.
 
-### Step 2 — Add Logback Configuration
 
-Create `src/main/resources/logback.xml` to control log output format and file location.
 
-### Step 3 — Implement the Upload Worker Thread
+## How to Use Anchor via Website Beta
 
-Create `upload/UploadWorker.java` — a `Runnable` that:
+1. Go to the Anchor website and download the `.jar` file and the provided `credentials.json`.
+2. Submit your Gmail address via the website form (or email) to request access as a test user.
+3. Once you are added as a test user, place the downloaded `credentials.json` in your `~/.anchor` folder.
+4. Run Anchor from the command line:
+  ```
+  java -jar Anchor.jar add-folder "C:\Your\Folder\Path"
+  ```
+5. On first run, a browser window will open for Google authentication. Log in with your Gmail (the one you submitted).
+6. Anchor will monitor your folder and upload files to Google Drive in the background.
 
-1. Polls `ManifestStore.getAll()` for `PENDING` or `UPLOADING` files on startup
-2. Calls `ResumableUploader.uploadFile()` for each
-3. Picks up new files added by `FolderWatcher` via a `BlockingQueue`
+**Note:** You do NOT need to create your own Google Cloud project or credentials. Use the file provided by the website.
 
-### Step 4 — Wire UploadWorker into AddFolderCommand
 
-Start the upload worker on its own named thread alongside the watcher thread.
-
-### Step 5 — Set Up Google Cloud Credentials
-
-1. Go to [console.cloud.google.com](https://console.cloud.google.com)
-2. Create a project → Enable the Google Drive API
-3. Create an OAuth 2.0 Desktop client
-4. Download `credentials.json` → place it at `~/.anchor/credentials.json`
-
-### Step 6 — Build and Test
-
-```bash
-mvn package
-java -jar target/Anchor-1.0-SNAPSHOT.jar add-folder C:\Videos
-java -jar target/Anchor-1.0-SNAPSHOT.jar status
-```
-
----
 
 ## Dependencies Summary
 
