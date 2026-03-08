@@ -7,8 +7,9 @@
 A Windows CLI tool that watches a local folder and uploads every file inside it to Google Drive using **resumable uploads**. If your connection drops mid-upload, Anchor picks up from exactly where it left off (or maybe not, just 8mb usage wasted 😛).
 
 ---
+
 <p align="center">
-  <img src="image.png" alt="Anchor Logo" width="200"/>
+  <img src="image.png" alt="Website" width="1200"/>
 </p>
 
 ## The Problem Anchor Solves
@@ -364,23 +365,21 @@ All core features of Anchor are fully implemented:
 
 ## The tool is ready for real-world use.
 
-
-
 ## How to Use Anchor via Website Beta
 
 1. Go to the Anchor website and download the `.jar` file and the provided `credentials.json`.
 2. Submit your Gmail address via the website form (or email) to request access as a test user.
 3. Once you are added as a test user, place the downloaded `credentials.json` in your `~/.anchor` folder.
 4. Run Anchor from the command line:
-  ```
-  java -jar Anchor.jar add-folder "C:\Your\Folder\Path"
-  ```
+
+```
+java -jar Anchor.jar add-folder "C:\Your\Folder\Path"
+```
+
 5. On first run, a browser window will open for Google authentication. Log in with your Gmail (the one you submitted).
 6. Anchor will monitor your folder and upload files to Google Drive in the background.
 
 **Note:** You do NOT need to create your own Google Cloud project or credentials. Use the file provided by the website.
-
-
 
 ## Dependencies Summary
 

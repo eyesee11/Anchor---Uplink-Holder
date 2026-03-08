@@ -1,0 +1,5 @@
+# Dependencies — installed locally, never commit these
+node_modules/
+
+# Environment variables — contains real client secrets, never commit
+.env

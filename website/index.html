@@ -1,0 +1,1347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anchor</title>
+    <style>
+      /* ── Base ──────────────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --green: #00ff41;
+        --green2: #00cc33;
+        --amber: #ffb700;
+        --dim: #00aa2a;
+        --bg: #000000;
+        --bg2: #0a0a0a;
+        --bg3: #111111;
+        --border: #1a3a1a;
+        --text: #cccccc;
+        --font: "Courier New", Courier, monospace;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--green);
+        font-family: var(--font);
+        overflow-x: hidden;
+        line-height: 1.6;
+      }
+
+      /* ── Scanline overlay ──────────────────────────────────────── */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent 0px,
+          transparent 2px,
+          rgba(0, 255, 65, 0.015) 2px,
+          rgba(0, 255, 65, 0.015) 4px
+        );
+        pointer-events: none;
+        z-index: 9999;
+      }
+
+      /* ── Nav ───────────────────────────────────────────────────── */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 40px;
+        background: rgba(0, 0, 0, 0.92);
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(6px);
+      }
+
+      .nav-logo {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--green);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+      }
+
+      .nav-logo span {
+        color: var(--amber);
+      }
+
+      nav ul {
+        list-style: none;
+        display: flex;
+        gap: 32px;
+      }
+
+      nav ul a {
+        color: var(--dim);
+        text-decoration: none;
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        transition: color 0.2s;
+      }
+
+      nav ul a:hover {
+        color: var(--green);
+      }
+
+      /* ── Sections ──────────────────────────────────────────────── */
+      section {
+        min-height: 100vh;
+        padding: 120px 40px 80px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      h2 {
+        font-size: 1rem;
+        letter-spacing: 6px;
+        text-transform: uppercase;
+        color: var(--amber);
+        margin-bottom: 48px;
+      }
+
+      h2::before {
+        content: "// ";
+        color: var(--dim);
+      }
+
+      /* ── HERO ──────────────────────────────────────────────────── */
+      #hero {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 100vh;
+        padding-top: 80px;
+      }
+
+      .hero-inner {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 48px;
+        align-items: center;
+        width: 100%;
+      }
+
+      .hero-left {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .hero-right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .ascii-logo {
+        color: var(--green);
+        font-size: clamp(0.28rem, 0.75vw, 0.55rem);
+        line-height: 1.2;
+        white-space: pre;
+        text-shadow: 0 0 18px rgba(0, 255, 65, 0.5);
+        animation: flicker 8s infinite;
+        flex-shrink: 0;
+      }
+
+      @media (max-width: 900px) {
+        .hero-inner {
+          grid-template-columns: 1fr;
+        }
+        .hero-right {
+          display: none;
+        }
+      }
+
+      @keyframes flicker {
+        0%,
+        95%,
+        100% {
+          opacity: 1;
+        }
+        96% {
+          opacity: 0.85;
+        }
+        97% {
+          opacity: 1;
+        }
+        98% {
+          opacity: 0.9;
+        }
+      }
+
+      .hero-tagline {
+        font-size: clamp(1.2rem, 3vw, 2rem);
+        color: var(--green);
+        min-height: 2.5rem;
+        margin-bottom: 16px;
+        text-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+      }
+
+      .cursor {
+        display: inline-block;
+        width: 12px;
+        height: 1.2em;
+        background: var(--green);
+        margin-left: 3px;
+        vertical-align: middle;
+        animation: blink 1s step-end infinite;
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      .hero-sub {
+        color: var(--text);
+        font-size: 0.95rem;
+        max-width: 600px;
+        margin-bottom: 40px;
+        line-height: 1.8;
+      }
+
+      .hero-sub span {
+        color: var(--amber);
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 64px;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 12px 28px;
+        font-family: var(--font);
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: var(--green);
+        color: #000;
+        font-weight: bold;
+      }
+
+      .btn-primary:hover {
+        background: #fff;
+        box-shadow: 0 0 24px rgba(0, 255, 65, 0.6);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: var(--green);
+        border: 1px solid var(--green);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(0, 255, 65, 0.08);
+        box-shadow: 0 0 16px rgba(0, 255, 65, 0.2);
+      }
+
+      /* ── Terminal demo ─────────────────────────────────────────── */
+      .terminal {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        max-width: 680px;
+        box-shadow: 0 0 40px rgba(0, 255, 65, 0.08);
+      }
+
+      .terminal-bar {
+        background: var(--bg3);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      .dot-r {
+        background: #ff5f57;
+      }
+      .dot-y {
+        background: #febc2e;
+      }
+      .dot-g {
+        background: #28c840;
+      }
+
+      .terminal-title {
+        color: var(--dim);
+        font-size: 0.75rem;
+        margin-left: 8px;
+        letter-spacing: 2px;
+      }
+
+      .terminal-body {
+        padding: 20px 24px;
+        font-size: 0.85rem;
+      }
+
+      .term-line {
+        margin: 4px 0;
+      }
+      .term-prompt {
+        color: var(--amber);
+      }
+      .term-cmd {
+        color: var(--green);
+      }
+      .term-info {
+        color: var(--dim);
+        font-size: 0.8rem;
+      }
+      .term-done {
+        color: #00ff41;
+      }
+      .term-pending {
+        color: var(--amber);
+      }
+      .term-progress {
+        color: var(--green);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.78rem;
+        margin: 2px 0;
+      }
+
+      .progress-bar {
+        display: inline-block;
+        width: 120px;
+        height: 8px;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: var(--green);
+        animation: fill 4s ease-in-out infinite alternate;
+      }
+
+      @keyframes fill {
+        from {
+          width: 10%;
+        }
+        to {
+          width: 90%;
+        }
+      }
+
+      /* ── HOW IT WORKS ──────────────────────────────────────────── */
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 32px;
+        margin-bottom: 48px;
+      }
+
+      .step {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        padding: 32px 28px;
+        position: relative;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .step:hover {
+        border-color: var(--green2);
+        box-shadow: 0 0 24px rgba(0, 255, 65, 0.08);
+      }
+
+      .step-number {
+        font-size: 3rem;
+        color: rgba(0, 255, 65, 0.1);
+        position: absolute;
+        top: 12px;
+        right: 20px;
+        font-weight: bold;
+      }
+
+      .step-icon {
+        font-size: 2rem;
+        margin-bottom: 16px;
+      }
+
+      .step h3 {
+        color: var(--amber);
+        font-size: 0.9rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      .step p {
+        color: var(--text);
+        font-size: 0.85rem;
+        line-height: 1.7;
+      }
+
+      .step p code {
+        color: var(--green);
+        background: var(--bg3);
+        padding: 1px 6px;
+        font-size: 0.8rem;
+      }
+
+      .arrow-connector {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dim);
+        font-size: 1.5rem;
+        align-self: center;
+      }
+
+      /* ── WHY ANCHOR ────────────────────────────────────────────── */
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 48px;
+      }
+
+      .compare-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        padding: 28px;
+      }
+
+      .compare-card.bad {
+        border-color: #3a1a1a;
+      }
+      .compare-card.good {
+        border-color: #1a3a1a;
+      }
+
+      .compare-card h3 {
+        font-size: 0.85rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+      }
+
+      .compare-card.bad h3 {
+        color: #ff4444;
+      }
+      .compare-card.good h3 {
+        color: var(--green);
+      }
+
+      .compare-card ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .compare-card ul li {
+        font-size: 0.85rem;
+        color: var(--text);
+        padding-left: 20px;
+        position: relative;
+        line-height: 1.6;
+      }
+
+      .compare-card.bad ul li::before {
+        content: "✗  ";
+        color: #ff4444;
+        position: absolute;
+        left: 0;
+      }
+      .compare-card.good ul li::before {
+        content: "✓  ";
+        color: var(--green);
+        position: absolute;
+        left: 0;
+      }
+
+      /* ── BETA ACCESS ───────────────────────────────────────────── */
+      .beta-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        align-items: start;
+      }
+
+      .beta-info p {
+        color: var(--text);
+        font-size: 0.88rem;
+        line-height: 1.8;
+        margin-bottom: 16px;
+      }
+
+      .beta-info p strong {
+        color: var(--amber);
+      }
+
+      .beta-steps {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .beta-steps li {
+        display: flex;
+        gap: 12px;
+        font-size: 0.85rem;
+        color: var(--text);
+      }
+
+      .beta-steps li .num {
+        color: var(--amber);
+        font-weight: bold;
+        min-width: 20px;
+      }
+
+      .beta-form {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        padding: 36px 32px;
+      }
+
+      .beta-form h3 {
+        color: var(--green);
+        font-size: 0.85rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 28px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-bottom: 8px;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        color: var(--green);
+        font-family: var(--font);
+        font-size: 0.85rem;
+        padding: 10px 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        border-color: var(--green2);
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+      }
+
+      .form-group textarea {
+        height: 80px;
+        resize: vertical;
+      }
+
+      .form-note {
+        font-size: 0.72rem;
+        color: var(--dim);
+        margin-top: 16px;
+        line-height: 1.6;
+      }
+
+      /* ── DOWNLOAD ──────────────────────────────────────────────── */
+      .download-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 48px;
+      }
+
+      .dl-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        padding: 28px;
+        transition: border-color 0.3s;
+      }
+
+      .dl-card:hover {
+        border-color: var(--green2);
+      }
+
+      .dl-card h3 {
+        color: var(--amber);
+        font-size: 0.85rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+
+      .dl-card p {
+        color: var(--text);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        margin-bottom: 20px;
+      }
+
+      .quickstart {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        padding: 32px;
+        margin-top: 32px;
+      }
+
+      .quickstart h3 {
+        color: var(--amber);
+        font-size: 0.85rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+      }
+
+      .code-block {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        padding: 20px 24px;
+        font-size: 0.82rem;
+        line-height: 2;
+        overflow-x: auto;
+      }
+
+      .code-comment {
+        color: var(--dim);
+      }
+      .code-cmd {
+        color: var(--green);
+      }
+      .code-arg {
+        color: var(--amber);
+      }
+      .code-out {
+        color: #888;
+      }
+
+      /* ── Footer ────────────────────────────────────────────────── */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 40px;
+        text-align: center;
+        color: var(--dim);
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+      }
+
+      footer a {
+        color: var(--dim);
+        text-decoration: none;
+      }
+      footer a:hover {
+        color: var(--green);
+      }
+
+      /* ── Responsive ────────────────────────────────────────────── */
+      @media (max-width: 768px) {
+        nav {
+          padding: 12px 20px;
+        }
+        nav ul {
+          gap: 16px;
+        }
+        section {
+          padding: 100px 20px 60px;
+        }
+        .comparison,
+        .beta-wrapper {
+          grid-template-columns: 1fr;
+        }
+        .ascii-logo {
+          font-size: 0.35rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ── NAV ──────────────────────────────────────────────────────── -->
+    <nav>
+      <div class="nav-logo">ANCH<span>O</span>R</div>
+      <ul>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#why">Why Anchor</a></li>
+        <li><a href="#beta">Beta Access</a></li>
+        <li><a href="#download">Download</a></li>
+      </ul>
+    </nav>
+
+    <!-- ── HERO ─────────────────────────────────────────────────────── -->
+    <section id="hero">
+      <div class="hero-inner">
+        <div class="hero-left">
+          <div class="hero-tagline" id="tagline">
+            <span class="cursor"></span>
+          </div>
+
+          <p class="hero-sub">
+            A Windows CLI tool that watches your folders and uploads files to
+            <span>Google Drive</span> using resumable chunked uploads.<br />
+            Drop the connection at byte 8,999,999,999 of a 9 GB file?
+            <span>Anchor picks up exactly where it left off.</span>
+          </p>
+
+          <div class="btn-group">
+            <a href="#download" class="btn btn-primary">&gt; Download Beta</a>
+            <a href="#beta" class="btn btn-secondary">&gt; Request Access</a>
+            <a
+              href="https://github.com/eyesee11/Anchor---Uplink-Holder"
+              class="btn btn-secondary"
+              target="_blank"
+              >&gt; GitHub</a
+            >
+          </div>
+
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <span class="terminal-title">anchor — powershell</span>
+            </div>
+            <div class="terminal-body" id="demo-terminal">
+              <div class="term-line">
+                <span class="term-prompt">PS C:\&gt; </span
+                ><span class="term-cmd"
+                  >java -jar anchor.jar add-folder "C:\Videos"</span
+                >
+              </div>
+              <div class="term-line term-info">
+                [ INFO ] Upload worker started
+              </div>
+              <div class="term-line term-info">
+                [ INFO ] Registered: holiday_2025.mp4 (2.1 GB)
+              </div>
+              <div class="term-line term-info">
+                [ INFO ] Registered: report_final.pdf (1.8 MB)
+              </div>
+              <div class="term-line term-info">
+                [ INFO ] Registered: backup_march.zip (800 MB)
+              </div>
+              <div class="term-line">&nbsp;</div>
+              <div class="term-progress">
+                <span class="term-prompt">&gt;&gt;</span>
+                holiday_2025.mp4
+                <span class="progress-bar"
+                  ><span class="progress-fill"></span
+                ></span>
+                <span id="pct">uploading...</span>
+              </div>
+              <div class="term-line term-done">
+                [ DONE ] report_final.pdf uploaded successfully
+              </div>
+              <div class="term-line term-pending">
+                [ PEND ] backup_march.zip queued
+              </div>
+              <div class="term-line">&nbsp;</div>
+              <div class="term-line term-info">
+                [ INFO ] Watching for new files... (Ctrl+C to stop)
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.hero-left -->
+        <div class="hero-right">
+          <pre class="ascii-logo">
+                                                                
+                                         ..                                          
+                                  .!|B$$$$$$$$d-l.                                   
+                              :zZ&$$$$$$$$$$$$$$$$M0|.                               
+                         :>Z@$$$@$$$$$$$&aa8$$$$$$@$$$$@Yi^                          
+                     [Lo@$$$$$$$$$$$$$Q`    <&$$$$$$$$$$$$$BpU<                      
+                  ;M$$$$$$$$$$@$$$$$@*  %$$C ;%$$$$$$$@$$$$$$$$$q^                   
+                 x@$$$$$$$$$$$$$$$$$$*  #$$C.:W$$$$$$$$$$$$$$$$$$%I                  
+                i8$@$$$$$$$@$$$$$$$$$@c.    ^#$$@$$$$@$$@$@$$$$$$$%                  
+                >B$$$$$$$$$$$$$$$$$$$$$B   !o$$$$$$$$$$$$$$$$$$$$$%.                 
+                >B$$$$$$$B*0h&%B@@$$$$$@   ]8$$$@@@@B8Ww0#$$$$$$$@%.                 
+                >B$$$$$$ai` !^'`^,;l!>~^    .             I@@$$@$$%.                 
+                >B$$$$$$k^             .                  `@$$$$$$%.                 
+                >B$$$$@$$#cnvq#B@$$$$$$$:l )@$$@$$@@&kCnxJ$$$$$$$$%.                 
+                >B$$$$$$$$$$$$$$$@$$$$$@<} [%$$@$$$$$$$$$$$@$$$$$$%.                 
+                >B$$$$$$$$$$$$$$$$$$$$$&+1 i*$$$$$$$$$$$$$$$@$$$$$%.                 
+                >B$$$$$@$$$$$$$$$$$$$$@|+)  q$$$$$$$$@$$$$$$$$$$$$%.                 
+                ,U@$$$$$$$$$$$$$$$$$$$$l+1  w$$$@$$$$$$$$$$$$$$$$#r                  
+                    |$$$$$$$$$$$$$$$$$@;j,  v$$$$$$$$$$$$$$$$$*:                     
+                       ]Y%$$$$$$$$$$$$c w    $$$$$$$$$$$$$%n;                        
+                          ./B$$$@$$$$&_Ui    }$$$$$$$$$@~                            
+                   'voB@$$$$$$$$$$$$$t~n     .Y$$$$$$$$$$$$$@B*]                     
+                ^l   i@$@$$$$$$$@$$$j:r.      .#$$$$@$$@$$$$$#;   U                  
+                 .zi   \o$$$$$$$$$$alm.        ~$$@$$$$$$$$bi   -1                   
+                   {J    `0$$$$$$$$Uc           p$$$$$$$@f'   ;*:                    
+                    .CJ^    :Xh@$$$"^           _@$$$kj`    >Qf.                     
+                      "op:      "+v.            `vi^      ^Wv'                       
+                        ;m%)^                          "n&Y`                         
+                          'tB*|                      X&@_.                           
+                             "Y&%X{^            I1q@kv`                              
+                                ^~*$B#kn,  _ZoW@@Cl'                                 
+                !/rnvcYQOmmmmmmmmmmmmd@$$$$$$Bqmmmmmmmmmmmmm0LJYzu\l                 
+                          .!!i~?tQM$$$$$$$$$$$$$$aJ|-&lt;i!l'                           
+                             t0d#$@$$$$$$$$$$$$$$$$%h0-                              
+                               _t_!i>&lt;~__]{--__|zJQz:                                
+                                    ',+})){-l`.</pre
+          >
+        </div>
+        <!-- /.hero-right -->
+      </div>
+      <!-- /.hero-inner -->
+    </section>
+
+    <!-- ── HOW IT WORKS ──────────────────────────────────────────────── -->
+    <section id="how">
+      <h2>How It Works</h2>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">01</div>
+          <div class="step-icon">👁</div>
+          <h3>Watch</h3>
+          <p>
+            Run <code>anchor add-folder "C:\Videos"</code>. Anchor registers
+            every existing file and hooks into the Windows OS file event system
+            (<code>ReadDirectoryChangesW</code>) for new files. Zero CPU polling
+            between events.
+          </p>
+        </div>
+
+        <div class="step">
+          <div class="step-number">02</div>
+          <div class="step-icon">#</div>
+          <h3>Hash</h3>
+          <p>
+            Every file is fingerprinted with <code>SHA-256</code> using a native
+            C binary — 3–5× faster than Java for large files. The hash and file
+            size are stored in a local <code>SQLite</code> database, so Anchor
+            never re-uploads an unchanged file.
+          </p>
+        </div>
+
+        <div class="step">
+          <div class="step-number">03</div>
+          <div class="step-icon">☁</div>
+          <h3>Upload</h3>
+          <p>
+            Files are uploaded to Google Drive in <code>8 MB chunks</code>.
+            After each chunk, the resume URI and byte offset are saved to disk.
+            If your connection drops, Anchor resumes from the last confirmed
+            chunk on the next run.
+          </p>
+        </div>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <span class="terminal-title">anchor status</span>
+        </div>
+        <div class="terminal-body">
+          <div class="term-line">
+            <span class="term-prompt">PS C:\&gt; </span
+            ><span class="term-cmd">java -jar anchor.jar status</span>
+          </div>
+          <div class="term-line">&nbsp;</div>
+          <div class="term-line" style="color: #555">
+            FILE SIZE PROGRESS STATUS
+          </div>
+          <div class="term-line" style="color: #333">
+            ──────────────────────────────────────────────────────────────────────
+          </div>
+          <div class="term-line term-done">
+            holiday_2025.mp4 2.1 GB &nbsp;&nbsp;&nbsp;&nbsp; 100% DONE
+          </div>
+          <div class="term-line term-done">
+            report_final.pdf 1.8 MB &nbsp;&nbsp;&nbsp;&nbsp; 100% DONE
+          </div>
+          <div class="term-line term-pending">
+            backup_march.zip 800 MB &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 67% UPLOADING
+          </div>
+          <div class="term-line" style="color: #555">
+            lecture_notes.pdf 320 KB &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0%
+            PENDING
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── WHY ANCHOR ────────────────────────────────────────────────── -->
+    <section id="why">
+      <h2>Why Anchor</h2>
+
+      <div class="comparison">
+        <div class="compare-card bad">
+          <h3>Google Drive Desktop / Browser</h3>
+          <ul>
+            <li>Restarts upload from byte 0 on any network failure</li>
+            <li>No visibility into chunk-level upload progress</li>
+            <li>Background sync client — heavy on resources</li>
+            <li>No CLI interface for scripting or automation</li>
+            <li>Can't target a specific folder on demand</li>
+            <li>No local manifest — can't answer "what was uploaded?"</li>
+          </ul>
+        </div>
+
+        <div class="compare-card good">
+          <h3>Anchor</h3>
+          <ul>
+            <li>Resumes from the last confirmed 8 MB chunk, always</li>
+            <li>Full per-file progress in <code>anchor status</code></li>
+            <li>Lightweight CLI — runs when you want, stops when you stop</li>
+            <li>Fully scriptable — pipe, cron, Task Scheduler</li>
+            <li>Watch any folder on demand with one command</li>
+            <li>SQLite manifest tracks every file: hash, size, status</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="terminal" style="max-width: 100%">
+        <div class="terminal-bar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <span class="terminal-title">resume after network drop</span>
+        </div>
+        <div class="terminal-body">
+          <div class="term-line term-info">
+            # Connection drops at chunk 47/112 of backup.zip
+          </div>
+          <div class="term-line" style="color: #ff5555">
+            [ ERR ] Network error at byte 392,167,424 — saving resume URI
+          </div>
+          <div class="term-line">&nbsp;</div>
+          <div class="term-line term-info">
+            # You restart. Anchor reads the saved offset from SQLite:
+          </div>
+          <div class="term-line">
+            <span class="term-prompt">PS C:\&gt; </span
+            ><span class="term-cmd"
+              >java -jar anchor.jar add-folder "C:\Videos"</span
+            >
+          </div>
+          <div class="term-line term-info">
+            [ INFO ] Recovering 1 interrupted upload...
+          </div>
+          <div class="term-line term-info">
+            [ INFO ] backup.zip resuming from byte 392,167,424 (chunk 47/112)
+          </div>
+          <div class="term-line term-done">
+            [ DONE ] backup.zip uploaded successfully — 0 bytes wasted
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── BETA ACCESS ───────────────────────────────────────────────── -->
+    <section id="beta">
+      <h2>Beta Access</h2>
+
+      <div class="beta-wrapper">
+        <div class="beta-info">
+          <p>
+            Anchor is currently in <strong>closed beta</strong>. The Google
+            OAuth app is in testing mode, which means only approved users can
+            authenticate.
+          </p>
+          <p>
+            Submit your Gmail address and you'll be added as a test user
+            manually. Once approved, you can download the JAR, place the
+            provided
+            <strong>credentials.json</strong> in <code>~/.anchor/</code>, and
+            start uploading.
+          </p>
+          <p>
+            No Google Cloud configuration needed on your end. Just download,
+            place the file, and run.
+          </p>
+
+          <ul class="beta-steps">
+            <li>
+              <span class="num">01</span> Submit your Gmail address using the
+              form
+            </li>
+            <li>
+              <span class="num">02</span> Wait for approval email (usually
+              within 24h)
+            </li>
+            <li>
+              <span class="num">03</span> Download the JAR and
+              <code>hasher.exe</code> from the Download section
+            </li>
+            <li>
+              <span class="num">04</span> Click
+              <strong>Authenticate with Google</strong> — a
+              <code>StoredCredential</code> file downloads automatically
+            </li>
+            <li>
+              <span class="num">05</span> Move it to
+              <code>C:\Users\YourName\.anchor\tokens\StoredCredential</code>
+            </li>
+            <li>
+              <span class="num">06</span> Run
+              <code>java -jar anchor.jar add-folder "C:\Your\Folder"</code>
+              — no browser login needed!
+            </li>
+          </ul>
+        </div>
+
+        <div class="beta-form">
+          <h3>&gt; Request Beta Access</h3>
+
+          <form onsubmit="handleSubmit(event)">
+            <div class="form-group">
+              <label>Your Name</label>
+              <input
+                type="text"
+                id="name"
+                placeholder="e.g. Ayush Sharma"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Gmail Address</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="yourname@gmail.com"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Use Case (optional)</label>
+              <textarea
+                id="usecase"
+                placeholder="e.g. Uploading lecture recordings over a slow hostel connection..."
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%">
+              &gt; Submit Request
+            </button>
+            <div id="form-status"></div>
+
+            <p class="form-note">
+              Your Gmail address is only used to add you as a Google OAuth test
+              user. It will never be shared or used for marketing.
+            </p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── DOWNLOAD ──────────────────────────────────────────────────── -->
+    <section id="download">
+      <h2>Download</h2>
+
+      <div class="download-grid">
+        <div class="dl-card">
+          <h3>anchor.jar</h3>
+          <p>
+            The fat JAR — contains all dependencies. Requires Java 17+
+            installed.<br />
+            Current version:
+            <span style="color: var(--green)">v1.0-SNAPSHOT</span>
+          </p>
+          <a href="Anchor-1.0-SNAPSHOT.jar" class="btn btn-primary" download
+            >&gt; Download .jar</a
+          >
+        </div>
+
+        <div class="dl-card">
+          <h3>Google Auth Tokens</h3>
+          <p>
+            Click below to authenticate with Google. After login, a
+            <code>StoredCredential</code> file downloads automatically.<br />
+            Place it in <code>~/.anchor/tokens/</code> — no
+            <code>credentials.json</code> needed on your machine.
+          </p>
+          <a href="/auth/login" class="btn btn-secondary"
+            >&gt; Authenticate with Google</a
+          >
+        </div>
+
+        <div class="dl-card">
+          <h3>hasher.exe</h3>
+          <p>
+            Native Windows SHA-256 binary. Place alongside the JAR or in
+            <code>~/.anchor/</code>. Required for file fingerprinting.
+          </p>
+          <a href="hasher.exe" class="btn btn-secondary" download
+            >&gt; Download hasher</a
+          >
+        </div>
+      </div>
+
+      <div class="quickstart">
+        <h3>&gt; Quick Start</h3>
+        <div class="code-block">
+          <div>
+            <span class="code-comment"
+              ># 1. Install Java 17+ if not already installed</span
+            >
+          </div>
+          <div>
+            <span class="code-comment"
+              ># 2. Create the Anchor config directories</span
+            >
+          </div>
+          <div>
+            <span class="code-cmd">mkdir </span
+            ><span class="code-arg">$env:USERPROFILE\.anchor\tokens</span>
+          </div>
+          <div>&nbsp;</div>
+          <div>
+            <span class="code-comment"
+              ># 3. Click "Authenticate with Google" above — a StoredCredential
+              file downloads</span
+            >
+          </div>
+          <div>
+            <span class="code-cmd">Move-Item </span
+            ><span class="code-arg"
+              >StoredCredential
+              $env:USERPROFILE\.anchor\tokens\StoredCredential</span
+            >
+          </div>
+          <div>&nbsp;</div>
+          <div>
+            <span class="code-comment"
+              ># 4. Place hasher.exe in the config directory</span
+            >
+          </div>
+          <div>
+            <span class="code-cmd">Move-Item </span
+            ><span class="code-arg"
+              >hasher.exe $env:USERPROFILE\.anchor\hasher.exe</span
+            >
+          </div>
+          <div>&nbsp;</div>
+          <div>
+            <span class="code-comment"
+              ># 5. Run Anchor — no browser login needed, tokens already
+              saved</span
+            >
+          </div>
+          <div>
+            <span class="code-cmd">java -jar </span
+            ><span class="code-arg"
+              >anchor.jar add-folder "C:\Your\Folder"</span
+            >
+          </div>
+          <div>&nbsp;</div>
+          <div>
+            <span class="code-comment"># 6. Check upload status anytime</span>
+          </div>
+          <div>
+            <span class="code-cmd">java -jar </span
+            ><span class="code-arg">anchor.jar status</span>
+          </div>
+          <div>&nbsp;</div>
+          <div><span class="code-out">FILE SIZE PROGRESS STATUS</span></div>
+          <div>
+            <span class="code-out"
+              >──────────────────────────────────────────────────────</span
+            >
+          </div>
+          <div>
+            <span style="color: var(--green)"
+              >movie.mp4 2.1 GB &nbsp;&nbsp;&nbsp;100% DONE</span
+            >
+          </div>
+          <div>
+            <span style="color: var(--amber)"
+              >backup.zip 800 MB &nbsp;&nbsp;&nbsp;&nbsp;67% UPLOADING</span
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FOOTER ────────────────────────────────────────────────────── -->
+    <footer>
+      <p style="margin-bottom: 8px">ANCHOR &mdash; Windows Upload Stabilizer</p>
+      <p>
+        Built by <a href="#">Ayush</a> &nbsp;|&nbsp;
+        <a href="https://github.com" target="_blank">GitHub</a> &nbsp;|&nbsp;
+        <a href="mailto:weaboo1164@gmail.com">Contact</a>
+      </p>
+      <p style="margin-top: 16px; font-size: 0.65rem; color: #1a3a1a">
+        Anchor is not affiliated with Google. Google Drive and Google OAuth are
+        trademarks of Google LLC.
+      </p>
+    </footer>
+
+    <!-- ── JS ───────────────────────────────────────────────────────── -->
+    <script>
+      // ── Typing animation ──────────────────────────────────────────
+      const phrases = [
+        "Never restart an upload from zero.",
+        "Chunked. Resumable. Unstoppable.",
+        "Your connection dropped. Anchor didn't.",
+        "Watch. Hash. Upload. Repeat.",
+      ];
+
+      let phraseIndex = 0;
+      let charIndex = 0;
+      let deleting = false;
+      const el = document.getElementById("tagline");
+
+      function type() {
+        const current = phrases[phraseIndex];
+        if (!deleting) {
+          charIndex++;
+          el.innerHTML =
+            current.slice(0, charIndex) + '<span class="cursor"></span>';
+          if (charIndex === current.length) {
+            deleting = true;
+            setTimeout(type, 2200);
+            return;
+          }
+        } else {
+          charIndex--;
+          el.innerHTML =
+            current.slice(0, charIndex) + '<span class="cursor"></span>';
+          if (charIndex === 0) {
+            deleting = false;
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+          }
+        }
+        setTimeout(type, deleting ? 38 : 72);
+      }
+      type();
+
+      // ── Animated % counter ────────────────────────────────────────
+      const pctEl = document.getElementById("pct");
+      let pct = 10;
+      let direction = 1;
+      setInterval(() => {
+        pct += direction * (Math.random() * 1.5);
+        if (pct >= 90) direction = -1;
+        if (pct <= 10) direction = 1;
+        pctEl.textContent = Math.floor(pct) + "%";
+      }, 300);
+
+      // ── Beta form ─────────────────────────────────────────────────
+      async function handleSubmit(e) {
+        e.preventDefault();
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const usecase = document.getElementById("usecase").value.trim();
+        const status = document.getElementById("form-status");
+        const btn = e.target.querySelector("button[type=submit]");
+
+        if (!email.endsWith("@gmail.com")) {
+          status.innerHTML =
+            '<p style="color:#ff5555;margin-top:12px;font-size:0.8rem;">> Error: must be a Gmail address (@gmail.com)</p>';
+          return;
+        }
+
+        btn.textContent = "> Sending...";
+        btn.disabled = true;
+
+        try {
+          const res = await fetch("https://formspree.io/f/mgonvjwp", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ name, email, usecase }),
+          });
+
+          if (res.ok) {
+            status.innerHTML = `
+              <p style="color:var(--green);margin-top:16px;font-size:0.82rem;line-height:1.8;">
+                > Request received for ${email}<br>
+                > You will be added as a test user within 24h.<br>
+                > Check your inbox for a confirmation.
+              </p>`;
+            e.target.reset();
+          } else {
+            const data = await res.json();
+            status.innerHTML = `<p style="color:#ff5555;margin-top:12px;font-size:0.8rem;">> Error: ${data.error || "Submission failed. Try again."}</p>`;
+          }
+        } catch {
+          status.innerHTML =
+            '<p style="color:#ff5555;margin-top:12px;font-size:0.8rem;">> Network error. Check your connection and try again.</p>';
+        }
+
+        btn.textContent = "> Submit Request";
+        btn.disabled = false;
+      }
+
+      // ── Scroll fade-in ────────────────────────────────────────────
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.style.opacity = "1";
+              e.target.style.transform = "translateY(0)";
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+
+      document
+        .querySelectorAll(".step, .compare-card, .dl-card")
+        .forEach((el) => {
+          el.style.opacity = "0";
+          el.style.transform = "translateY(20px)";
+          el.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+          observer.observe(el);
+        });
+    </script>
+  </body>
+</html>
